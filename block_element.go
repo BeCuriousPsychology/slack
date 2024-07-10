@@ -3,20 +3,21 @@ package slack
 // https://api.slack.com/reference/messaging/block-elements
 
 const (
-	METCheckboxGroups MessageElementType = "checkboxes"
-	METImage          MessageElementType = "image"
-	METButton         MessageElementType = "button"
-	METOverflow       MessageElementType = "overflow"
-	METDatepicker     MessageElementType = "datepicker"
-	METTimepicker     MessageElementType = "timepicker"
-	METDatetimepicker MessageElementType = "datetimepicker"
-	METPlainTextInput MessageElementType = "plain_text_input"
-	METRadioButtons   MessageElementType = "radio_buttons"
-	METRichTextInput  MessageElementType = "rich_text_input"
-	METEmailTextInput MessageElementType = "email_text_input"
-	METURLTextInput   MessageElementType = "url_text_input"
-	METNumber         MessageElementType = "number_input"
-	METFileInput      MessageElementType = "file_input"
+	METCheckboxGroups             MessageElementType = "checkboxes"
+	METImage                      MessageElementType = "image"
+	METButton                     MessageElementType = "button"
+	METOverflow                   MessageElementType = "overflow"
+	METDatepicker                 MessageElementType = "datepicker"
+	METTimepicker                 MessageElementType = "timepicker"
+	MultiConversationSelectorType MessageElementType = "multi_conversations_select"
+	METDatetimepicker             MessageElementType = "datetimepicker"
+	METPlainTextInput             MessageElementType = "plain_text_input"
+	METRadioButtons               MessageElementType = "radio_buttons"
+	METRichTextInput              MessageElementType = "rich_text_input"
+	METEmailTextInput             MessageElementType = "email_text_input"
+	METURLTextInput               MessageElementType = "url_text_input"
+	METNumber                     MessageElementType = "number_input"
+	METFileInput                  MessageElementType = "file_input"
 
 	MixedElementImage MixedElementType = "mixed_image"
 	MixedElementText  MixedElementType = "mixed_text"
@@ -47,18 +48,19 @@ type MixedElement interface {
 }
 
 type Accessory struct {
-	ImageElement               *ImageBlockElement
-	ButtonElement              *ButtonBlockElement
-	OverflowElement            *OverflowBlockElement
-	DatePickerElement          *DatePickerBlockElement
-	TimePickerElement          *TimePickerBlockElement
-	PlainTextInputElement      *PlainTextInputBlockElement
-	RichTextInputElement       *RichTextInputBlockElement
-	RadioButtonsElement        *RadioButtonsBlockElement
-	SelectElement              *SelectBlockElement
-	MultiSelectElement         *MultiSelectBlockElement
-	CheckboxGroupsBlockElement *CheckboxGroupsBlockElement
-	UnknownElement             *UnknownBlockElement
+	ImageElement                  *ImageBlockElement
+	ButtonElement                 *ButtonBlockElement
+	OverflowElement               *OverflowBlockElement
+	DatePickerElement             *DatePickerBlockElement
+	TimePickerElement             *TimePickerBlockElement
+	PlainTextInputElement         *PlainTextInputBlockElement
+	RichTextInputElement          *RichTextInputBlockElement
+	RadioButtonsElement           *RadioButtonsBlockElement
+	SelectElement                 *SelectBlockElement
+	MultiSelectElement            *MultiSelectBlockElement
+	CheckboxGroupsBlockElement    *CheckboxGroupsBlockElement
+	MultiConversationBlockElement *MultiConversationBlock
+	UnknownElement                *UnknownBlockElement
 }
 
 // NewAccessory returns a new Accessory for a given block element
@@ -86,6 +88,8 @@ func NewAccessory(element BlockElement) *Accessory {
 		return &Accessory{MultiSelectElement: element.(*MultiSelectBlockElement)}
 	case *CheckboxGroupsBlockElement:
 		return &Accessory{CheckboxGroupsBlockElement: element.(*CheckboxGroupsBlockElement)}
+	case *MultiConversationBlock:
+		return &Accessory{MultiConversationBlockElement: element.(*MultiConversationBlock)}
 	default:
 		return &Accessory{UnknownElement: element.(*UnknownBlockElement)}
 	}
@@ -108,6 +112,24 @@ type UnknownBlockElement struct {
 
 // ElementType returns the type of the Element
 func (s UnknownBlockElement) ElementType() MessageElementType {
+	return s.Type
+}
+
+type Placeholder struct {
+	Type  string `json:"type"`
+	Text  string `json:"text"`
+	Emoji bool   `json:"emoji"`
+}
+
+// MultiConversationBlock defines a block element that allows users to select
+// multiple conversations from a list of possible options.
+type MultiConversationBlock struct {
+	Type        MessageElementType `json:"type"`
+	Placeholder Placeholder        `json:"placeholder"`
+	ActionId    string             `json:"action_id"`
+}
+
+func (s MultiConversationBlock) ElementType() MessageElementType {
 	return s.Type
 }
 
