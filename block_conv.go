@@ -387,6 +387,9 @@ func toBlockElement(element *Accessory) BlockElement {
 	if element.MultiSelectElement != nil {
 		return element.MultiSelectElement
 	}
+	if element.MultiConversationBlockElement != nil {
+		return element.MultiConversationBlockElement
+	}
 
 	return nil
 }
